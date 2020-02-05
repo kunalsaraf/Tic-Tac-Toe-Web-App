@@ -1,3 +1,5 @@
+import random
+
 grid = [['-', '-', '-'], ['-', '-', '-'], ['-', '-', '-']]
 a = 'O'
 b = 'X'
@@ -64,6 +66,7 @@ def printGrid(grid):
         for j in i:
             print(j, end=' ')
         print()
+    print()
 
 
 def markMyEntry(position, player):
@@ -120,27 +123,68 @@ def markMyEntry(position, player):
         return True
 
 
-printGrid(grid)
-chance = 1
-
-while checkWinner(grid) == 0:
-    print("Enter a location: ",end=' ')
-    position = input()
-    if chance == 1:
-        if markMyEntry(position, 1):
-            chance = 2
-        else:
-            print("Invalid Move")
-    else:
-        if markMyEntry(position, 2):
-            chance = 1
-        else:
-            print("Invalid Move")
+def twoPlayerGame():
     printGrid(grid)
+    chance = 1
+    while checkWinner(grid) == 0:
+        print("Enter a location: ",end=' ')
+        position = input()
+        if chance == 1:
+            if markMyEntry(position, 1):
+                chance = 2
+            else:
+                print("Invalid Move")
+        else:
+            if markMyEntry(position, 2):
+                chance = 1
+            else:
+                print("Invalid Move")
+        printGrid(grid)
+        if (checkWinner(grid) == 1):
+            print("Winner is B")
+        elif (checkWinner(grid) == -1):
+            print("Winner is A")
+        elif (checkWinner(grid) == 99):
+            print("Game Drawn")
 
-if (checkWinner(grid) == 1):
-    print("Winner is B")
-elif (checkWinner(grid) == -1):
-    print("Winner is A")
-else:
-    print("Game Drawn")
+def getARandomLocation():
+    return random.choice(['a','b','c','d','e','f','g','h','i'])
+
+
+def onePlayerGameEasy():
+    printGrid(grid)
+    chance = 1
+    while checkWinner(grid) == 0:
+        if chance == 1:
+            print("Enter a location: ", end=' ')
+            position = input()
+            if markMyEntry(position, 1):
+                chance = 2
+            else:
+                print("Invalid Move")
+        else:
+            while(1):
+                position = getARandomLocation()
+                if markMyEntry(position, 2):
+                    chance = 1
+                    break
+                # print("Invalid Move")
+        printGrid(grid)
+        if (checkWinner(grid) == 1):
+            print("Winner is B")
+        elif (checkWinner(grid) == -1):
+            print("Winner is A")
+        elif (checkWinner(grid) == 99):
+            print("Game Drawn")
+
+if __name__ == '__main__':
+    print("Which mode do you want to play the game in: ")
+    print("1. 1-Player (Easy)")
+    print("2. 2-Player")
+    choice = int(input())
+    if choice == 1:
+        onePlayerGameEasy()
+    elif choice == 2:
+        twoPlayerGame()
+    else:
+        print("Invalid choice")
