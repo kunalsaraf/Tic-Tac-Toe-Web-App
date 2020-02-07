@@ -54,6 +54,7 @@ def checkWinner(grid):
     # Minor diagonal player 2
     if grid[0][2] == b and grid[1][1] == b and grid[2][0] == b:
         return 1
+    # Checking if empty spots exist
     for i in grid:
         for j in i:
             if j == '-':
@@ -127,7 +128,7 @@ def twoPlayerGame():
     printGrid(grid)
     chance = 1
     while checkWinner(grid) == 0:
-        print("Enter a location: ",end=' ')
+        print("Enter a location: ", end=' ')
         position = input()
         if chance == 1:
             if markMyEntry(position, 1):
@@ -140,15 +141,17 @@ def twoPlayerGame():
             else:
                 print("Invalid Move")
         printGrid(grid)
-        if (checkWinner(grid) == 1):
+        status = checkWinner(grid)
+        if (status == 1):
             print("Winner is B")
-        elif (checkWinner(grid) == -1):
+        elif (status == -1):
             print("Winner is A")
-        elif (checkWinner(grid) == 99):
+        elif (status == 99):
             print("Game Drawn")
 
+
 def getARandomLocation():
-    return random.choice(['a','b','c','d','e','f','g','h','i'])
+    return random.choice(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'])
 
 
 def onePlayerGameEasy():
@@ -163,28 +166,126 @@ def onePlayerGameEasy():
             else:
                 print("Invalid Move")
         else:
-            while(1):
+            while (1):
                 position = getARandomLocation()
                 if markMyEntry(position, 2):
                     chance = 1
                     break
                 # print("Invalid Move")
         printGrid(grid)
-        if (checkWinner(grid) == 1):
+        status = checkWinner(grid)
+        if (status == 1):
             print("Winner is B")
-        elif (checkWinner(grid) == -1):
+        elif (status == -1):
             print("Winner is A")
-        elif (checkWinner(grid) == 99):
+        elif (status == 99):
             print("Game Drawn")
+
+
+def fullyFilled(grid):
+    for i in grid:
+        for j in i:
+            if j == '-':
+                return False
+    return True
+
+
+def heuristicValue(grid, player):
+    if fullyFilled(grid):
+        status = checkWinner(grid)
+        if status == 99:
+            return 0
+        # print(f"I am returning {status}")
+        return status
+    if player == 1:
+        symbol = a
+    else:
+        symbol = b
+    currentValue = 0
+    for i in range(0, 3):
+        for j in range(0, 3):
+            if grid[i][j] == '-':
+                grid[i][j] = symbol
+                if player == 1:
+                    currentValue = currentValue + heuristicValue(grid, 2)
+                else:
+                    currentValue = currentValue + heuristicValue(grid, 1)
+                grid[i][j] = '-'
+    return currentValue
+
+
+def calculateNextBestMove(grid):
+    nextPosition = []
+    for i in range(0, 3):
+        for j in range(0, 3):
+            if grid[i][j] == '-':
+                grid[i][j] = b
+                val = heuristicValue(grid, 1)
+                grid[i][j] = '-'
+                nextPosition.append([val, i, j])
+    for i in nextPosition:
+        print(i)
+    print()
+    nextPosition.sort(reverse=True)
+    if nextPosition[0][1] == 0 and nextPosition[0][2] == 0:
+        return 'a'
+    if nextPosition[0][1] == 0 and nextPosition[0][2] == 1:
+        return 'b'
+    if nextPosition[0][1] == 0 and nextPosition[0][2] == 2:
+        return 'c'
+    if nextPosition[0][1] == 1 and nextPosition[0][2] == 0:
+        return 'd'
+    if nextPosition[0][1] == 1 and nextPosition[0][2] == 1:
+        return 'e'
+    if nextPosition[0][1] == 1 and nextPosition[0][2] == 2:
+        return 'f'
+    if nextPosition[0][1] == 2 and nextPosition[0][2] == 0:
+        return 'g'
+    if nextPosition[0][1] == 2 and nextPosition[0][2] == 1:
+        return 'h'
+    if nextPosition[0][1] == 2 and nextPosition[0][2] == 2:
+        return 'i'
+
+
+def onePlayerGameHard():
+    printGrid(grid)
+    chance = 1
+    while checkWinner(grid) == 0:
+        if chance == 1:
+            print("Enter a location: ", end=' ')
+            position = input()
+            if markMyEntry(position, 1):
+                chance = 2
+            else:
+                print("Invalid Move")
+        else:
+            position = calculateNextBestMove(grid)
+            if markMyEntry(position, 2):
+                chance = 1
+                # print("Invalid Move")
+        printGrid(grid)
+        status = checkWinner(grid)
+        if (status == 1):
+            print("Winner is B")
+        elif (status == -1):
+            print("Winner is A")
+        elif (status == 99):
+            print("Game Drawn")
+
 
 if __name__ == '__main__':
     print("Which mode do you want to play the game in: ")
     print("1. 1-Player (Easy)")
-    print("2. 2-Player")
+    print("2. 1-Player (Hard)")
+    print("3. 2-Player")
     choice = int(input())
     if choice == 1:
         onePlayerGameEasy()
     elif choice == 2:
+        onePlayerGameHard()
+    elif choice == 3:
         twoPlayerGame()
     else:
         print("Invalid choice")
+    # dummy = [[a,'-','-'],['-','-','-'],['-','-','-']]
+    # print(heuristicValue(dummy,2))
